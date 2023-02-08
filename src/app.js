@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import gamesRouter from "./routers/gamesRoutes.js";
 import dotenv from 'dotenv'
+dotenv.config()
 
 const server = express();
-dotenv.config()
 
 server.use(cors())
 server.use(express.json())
