@@ -5,7 +5,7 @@ import {
   listCustomersById,
   updateCustomer,
 } from "../controllers/curstomersController.js";
-import { validateCustomerSchema } from "../middlewares/validateCustomerSchema.js";
+import { validateCustomerSchema, validateUpdateCustomer } from "../middlewares/validateCustomerSchema.js";
 
 const customerRouter = Router();
 
@@ -15,6 +15,6 @@ customerRouter.get("/customers/:id", listCustomersById);
 
 customerRouter.post("/customers", validateCustomerSchema, createCustomer);
 
-customerRouter.put("/customers/:id", validateCustomerSchema, updateCustomer);
+customerRouter.put("/customers/:id", validateUpdateCustomer, updateCustomer);
 
 export default customerRouter;
