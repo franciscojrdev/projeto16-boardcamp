@@ -5,7 +5,6 @@ export const listCustomers = async (req,res) =>{
 
     try {
         const findCustomers = await db.query("SELECT * FROM customers")
-        console.log(findCustomers)
         res.send(findCustomers.rows)
     } catch (error) {
         res.status(500).send(error.message)
@@ -18,9 +17,11 @@ export const listCustomersById = async (req,res) => {
     if(isNaN(id)) return res.sendStatus(400);
 
     try {
-        const findCustomer = await db.query(`SELECT * FROM customers WHERE id = $1`,[id])
-        console.log(findCustomer)
-        res.send(findCustomer.rows)
+        const {rows: findCustomer} = await db.query(`SELECT * FROM customers WHERE id = $1`,[id])
+        if(findCustomer.length === 0){
+            return res.sendStatus(404)
+        }
+        res.send(findCustomer)
     } catch (error) {
         res.status(500).send(error.message)
     }
@@ -30,8 +31,18 @@ export const listCustomersById = async (req,res) => {
 export const createCustomer = async (req,res) => {
     const {name,phone,cpf,birthday} = res.locals.customerData;
     try {
-        
+        await db.query(`INSERT INTO customers(name,phone,cpf,birthday) VALUES ($1,$2,$3,$4)`,[name,phone,cpf,birthday])
+        res.sendStatus(201);
     } catch (error) {
         res.send(error.message)
+    }
+}
+
+export const updateCustomer = async (req,res) => {
+    const {name,phone,cpf,birthday} = res.locals.customerData;
+    try {
+        
+    } catch (error) {
+        res.status(500).send(error.message)
     }
 }
