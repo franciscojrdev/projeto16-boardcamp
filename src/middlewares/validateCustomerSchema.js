@@ -59,7 +59,7 @@ export const validateUpdateCustomer = async (req, res, next) => {
     );
 
     if (findRepeatCustomer.length !== 0 && findRepeatCustomer[0].cpf !== cpf) {
-      return res.status(409).send("cpf already exists!");
+      return res.sendStatus(409);
     }
     res.locals.customerUpdateData = customerUpdateData;
     next();

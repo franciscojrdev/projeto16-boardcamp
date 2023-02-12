@@ -21,7 +21,7 @@ export const listCustomersById = async (req,res) => {
         if(findCustomer.length === 0){
             return res.sendStatus(404)
         }
-        res.send(findCustomer)
+        res.send(findCustomer[0])
     } catch (error) {
         res.status(500).send(error.message)
     }
@@ -50,7 +50,7 @@ export const updateCustomer = async (req,res) => {
             return res.sendStatus(404)
         }
         await db.query(`UPDATE customers SET name = $1,phone = $2,cpf = $3 ,birthday = $4 WHERE id = $5;`,[name,phone,cpf,birthday,id])
-        res.sendStatus(201)
+        res.sendStatus(200)
     } catch (error) {
         res.status(500).send(error.message)
     }
