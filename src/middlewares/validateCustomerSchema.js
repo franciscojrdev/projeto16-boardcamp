@@ -37,6 +37,9 @@ export const validateCustomerSchema = async (req, res, next) => {
 
 export const validateUpdateCustomer = async (req, res, next) => {
   const { name, phone, cpf, birthday } = req.body;
+  const id = Number(req.params.id);
+
+  if (isNaN(id)) return res.sendStatus(400);
 
   const customerUpdateData = {
     name,
@@ -44,6 +47,7 @@ export const validateUpdateCustomer = async (req, res, next) => {
     cpf,
     birthday,
   };
+  
   const { error } = customerSchema.validate(customerUpdateData, {
     abortEarly: false,
   });
@@ -58,10 +62,10 @@ export const validateUpdateCustomer = async (req, res, next) => {
       [cpf]
     );
 
-    if (findRepeatCustomer.length !== 0 && findRepeatCustomer[0].cpf !== cpf) {
+    if (findRepeatCustomer.length !== 0 && findRepeatCustomer[0].id !== id) {
       return res.sendStatus(409);
     }
-    res.locals.customerUpdateData = customerUpdateData;
+    res.locals.customerUpdateData = {...customerUpdateData,id};
     next();
   } catch (error) {
     res.status(500).send(error.message);

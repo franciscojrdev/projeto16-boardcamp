@@ -43,19 +43,9 @@ export const createCustomer = async (req, res) => {
 };
 
 export const updateCustomer = async (req, res) => {
-  const { name, phone, cpf, birthday } = res.locals.customerUpdateData;
-  const id = Number(req.params.id);
-
-  if (isNaN(id)) return res.sendStatus(400);
-
+  const { name, phone, cpf, birthday,id} = res.locals.customerUpdateData;
+  
   try {
-    const { rows: findCustomer } = await db.query(
-      `SELECT * FROM customers WHERE id = $1 AND cpf = $2`,
-      [id, cpf]
-    );
-    if (findCustomer.length === 0) {
-      return res.sendStatus(404);
-    }
     await db.query(
       `UPDATE customers SET name = $1,phone = $2,cpf = $3 ,birthday = $4 WHERE id = $5;`,
       [name, phone, cpf, birthday, id]

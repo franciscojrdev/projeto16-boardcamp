@@ -77,7 +77,7 @@ export const deleteRental = async (req, res) => {
 
   try {
     const { rows: findRental } = await db.query(
-      `SELECT * FROM rentals WHERE id = $1`,
+      `SELECT * FROM rentals WHERE id = $1;`,
       [id]
     );
     if (findRental.length === 0) {
