@@ -21,10 +21,12 @@ export const validateRentalBody = async (req, res, next) => {
     // console.log(findGame[0],findRentals);
 
     if (
+      isNaN(customerId)||
+      isNaN(gameId)||
       findCustomer.length === 0 ||
       findGame.length === 0 ||
       isNaN(daysRented) ||
-      daysRented === 0 ||
+      daysRented <= 0 ||
       findRentals.length > findGame[0].stockTotal
     ) {
       return res.sendStatus(400);
@@ -48,8 +50,6 @@ export const validateRentalBody = async (req, res, next) => {
 export const concludeRental = async (req, res, next) => {
   const id = Number(req.params.id);
 
-  dayjs().format("YYYY-MM-DD");
-
   if (isNaN(id)) return res.sendStatus(400);
 
   try {
@@ -72,7 +72,7 @@ export const concludeRental = async (req, res, next) => {
     const rentalConcludeData = {
       ...findRental[0], days : result[0].days
     }
-    console.log(rentalConcludeData)
+    // console.log(rentalConcludeData)
 
     res.locals.rentalConcludeData = rentalConcludeData;
     next()

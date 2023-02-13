@@ -3,7 +3,25 @@ import { db } from "../config/database.js";
 
 export const listRentals = async (req, res) => {
   try {
-    const { rows: findRentals } = await db.query(`SELECT * FROM rentals;`);
+    // const { rows: findRentals } = await db.query(`SELECT * FROM rentals;`);
+
+    const { rows: findRentals } = await db.query(
+      `SELECT json_build_object(
+        'id',rentals.id,
+        'customerId',rentals."customerId",
+        'gameId', rentals."gameId",
+        'rentDate',rentals."rentDate",
+        'daysRented',rentals."daysRented",
+        'returnDate',rentals."returnDate",
+        'originalPrice',rentals."originalPrice",
+        'delayFee',rentals."delayFee",
+        'customer',json_build_object('id',customers.id,'name',customers.name),
+        'games', json_build_object('id',games.id,'name',games.name))
+      FROM rentals 
+      JOIN customers ON rentals."customerId" = customers.id
+      JOIN games ON rentals."gameId" = games.id;
+      `
+    );
 
     res.send(findRentals);
   } catch (error) {
@@ -36,7 +54,7 @@ export const finishRental = async (req, res) => {
   const calcFee = days - daysRented;
   const pricePerDay = originalPrice / daysRented;
 
-  console.log(id, daysRented, originalPrice, days,calcFee,pricePerDay)
+  console.log(id, daysRented, originalPrice, days, calcFee, pricePerDay);
 
   try {
     if (calcFee < 1) {
@@ -73,7 +91,7 @@ export const deleteRental = async (req, res) => {
     if (findRental[0].returnDate !== null) {
       return res.sendStatus(400);
     }
-    await db.query(`DELETE FROM rentals WHERE id = $1`, [id]);
+    await db.query(`DELETE FROM rentals WHERE id = $1;`, [id]);
     res.sendStatus(200);
   } catch (error) {
     res.status(500).send(error.message);
