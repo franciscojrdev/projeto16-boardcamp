@@ -1,8 +1,19 @@
 import dayjs from "dayjs";
 import { db } from "../config/database.js";
+import { rentalSchema } from "../schemas/rentalSchema.js";
 
 export const validateRentalBody = async (req, res, next) => {
   const { customerId, gameId, daysRented } = req.body;
+
+  const { error } = rentalSchema.validate(
+    { customerId, gameId, daysRented },
+    { abortEarly: false }
+  );
+
+  if (error) {
+    const errorMessage = error.details.map((detail) => detail.message);
+    return res.status(400).send(errorMessage);
+  }
 
   try {
     const { rows: findCustomer } = await db.query(
@@ -18,16 +29,12 @@ export const validateRentalBody = async (req, res, next) => {
       [gameId]
     );
 
-    // console.log(findGame[0],findRentals);
+    let quantRents = findRentals.filter((el) => el.returnDate === null)
 
     if (
-      isNaN(customerId)||
-      isNaN(gameId)||
       findCustomer.length === 0 ||
       findGame.length === 0 ||
-      isNaN(daysRented) ||
-      daysRented <= 0 ||
-      findRentals.length > findGame[0].stockTotal
+      quantRents.length === findGame[0].stockTotal
     ) {
       return res.sendStatus(400);
     }
@@ -58,7 +65,7 @@ export const concludeRental = async (req, res, next) => {
       [id]
     );
 
-    console.log(findRental)
+    console.log(findRental);
     if (findRental.length === 0) {
       return res.sendStatus(404);
     }
@@ -67,15 +74,17 @@ export const concludeRental = async (req, res, next) => {
     }
 
     const { rows: result } = await db.query(
-      `SELECT DATE_PART('day',now()::timestamp - rentals."rentDate"::timestamp) AS days FROM rentals WHERE id = $1`,[id]);
+      `SELECT DATE_PART('day',now()::timestamp - rentals."rentDate"::timestamp) AS days FROM rentals WHERE id = $1`,
+      [id]
+    );
 
     const rentalConcludeData = {
-      ...findRental[0], days : result[0].days
-    }
-    // console.log(rentalConcludeData)
+      ...findRental[0],
+      days: result[0].days,
+    };
 
     res.locals.rentalConcludeData = rentalConcludeData;
-    next()
+    next();
   } catch (error) {
     res.status(500).send(error.message);
   }

@@ -3,8 +3,6 @@ import { db } from "../config/database.js";
 
 export const listRentals = async (req, res) => {
   try {
-    // const { rows: findRentals } = await db.query(`SELECT * FROM rentals;`);
-
     const { rows: findRentals } = await db.query(
       `SELECT json_build_object(
         'id',rentals.id,
@@ -16,14 +14,14 @@ export const listRentals = async (req, res) => {
         'originalPrice',rentals."originalPrice",
         'delayFee',rentals."delayFee",
         'customer',json_build_object('id',customers.id,'name',customers.name),
-        'games', json_build_object('id',games.id,'name',games.name))
+        'game', json_build_object('id',games.id,'name',games.name))
       FROM rentals 
       JOIN customers ON rentals."customerId" = customers.id
       JOIN games ON rentals."gameId" = games.id;
       `
     );
-
-    res.send(findRentals);
+    let sendData = findRentals.map((el) => el.json_build_object);
+    res.send(sendData);
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -33,7 +31,6 @@ export const createRentals = async (req, res) => {
   const { customerId, gameId, daysRented, rentDate, pricePerDay } =
     res.locals.rentalData;
   try {
-    // const rentDate = dayjs().format("YYYY-MM-DD");
     const originalPrice = pricePerDay * daysRented;
 
     await db.query(
@@ -53,8 +50,6 @@ export const finishRental = async (req, res) => {
   let DateNow = dayjs().format("YYYY-MM-DD");
   const calcFee = days - daysRented;
   const pricePerDay = originalPrice / daysRented;
-
-  console.log(id, daysRented, originalPrice, days, calcFee, pricePerDay);
 
   try {
     if (calcFee < 1) {
