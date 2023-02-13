@@ -48,7 +48,7 @@ export const validateRentalBody = async (req, res, next) => {
 export const concludeRental = async (req, res, next) => {
   const id = Number(req.params.id);
 
-  const DateNow = dayjs().format("YYYY-MM-DD");
+  dayjs().format("YYYY-MM-DD");
 
   if (isNaN(id)) return res.sendStatus(400);
 
@@ -58,23 +58,24 @@ export const concludeRental = async (req, res, next) => {
       [id]
     );
 
+    console.log(findRental)
     if (findRental.length === 0) {
       return res.sendStatus(404);
     }
     if (findRental[0].returnDate !== null) {
-      return res.sendStatus(400)
+      return res.sendStatus(400);
     }
-    
+
     const { rows: result } = await db.query(
-      `SELECT DATE_PART('day',now()::timestamp - rentals."rentDate"::timestamp) AS days FROM rentals WHERE id=$1;
-          `,
-      [id]
-    );
+      `SELECT DATE_PART('day',now()::timestamp - rentals."rentDate"::timestamp) AS days FROM rentals WHERE id = $1`,[id]);
 
-    console.log(result);
-    const rentalConcludeData = { ...findRental[0] };
+    const rentalConcludeData = {
+      ...findRental[0], days : result[0].days
+    }
+    console.log(rentalConcludeData)
 
-    console.log(rentalConcludeData);
+    res.locals.rentalConcludeData = rentalConcludeData;
+    next()
   } catch (error) {
     res.status(500).send(error.message);
   }
